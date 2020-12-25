@@ -4,12 +4,26 @@ from utils.clean import clean_multiple_rows
 from pathlib import Path
 import os
 
-
 def clean_1c_exel(file_name='C_data.xls'):
     with open(Path.cwd() / 'data' / file_name, "rb") as f:
         df = pd.read_excel(f, header=None)
+    df = df.fillna(0)
 
-    return df
+    df = df.drop(columns=[1,3,4])
+
+    head_ind, head_nam = get_order_headers(df)
+
+    orders_number = len(head_ind)
+    df_list = [None] * (orders_number)
+    for i, index in enumerate(head_ind):
+        if (i+1) >= orders_number:
+            df_list[i] = df.iloc[index + 1: -1]
+        else:
+            df_list[i] = df.iloc[index+1: head_ind[i+1]]
+            d = df_list[i]
+        df_list[i]['order_number'] = head_nam[i]
+
+    return df_list
     # mask = df[0].str.find('Заказ на производство ЭТИ0000') == 0
     # header_indexes = mask[mask].index.tolist()
     #
@@ -65,3 +79,20 @@ def clean_1c_exel(file_name='C_data.xls'):
     #     clean_df.to_csv(f, encoding="windows-1251")
     #
     # return clean_df
+def get_order_headers(df: pd.DataFrame,
+                      row_pattern='Заказ на производство ЭТИ0000',
+                      word_pattern='ЭТИ0000'):
+
+    mask = df[0].str.find('Заказ на производство ЭТИ0000') == 0
+    header_ind = mask[mask].index
+
+    ind_list = []
+    ord_list = []
+    for index in header_ind:
+        string_list = df.iloc[index, 0].split()
+        for i, word in enumerate(string_list):
+            if 'ЭТИ0000' in word:
+                ind_list.append(index)
+                ord_list.append(word[-4:])
+
+    return ind_list, ord_list
