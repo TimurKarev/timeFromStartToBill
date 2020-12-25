@@ -38,6 +38,7 @@ def clean_multiple_rows(row):
     bill_time = []
     master_name = []
     manager_name = []
+
     for i in range(min_div_number):
         part_name.append(_part.split()[0])
         initial_time.append(dt_initial_time)
