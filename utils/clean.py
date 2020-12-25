@@ -5,6 +5,7 @@ import pandas as pd
 def clean_multiple_rows(row):
     """ Создает из Серии несколько серий если в ячейке указанно несколько входов
     делавает из строчки date и убирает время """
+    _order = row.num_order
     _part = row.part_name
     _init = row.initial_date
     _creat = row.creation_date
@@ -33,6 +34,7 @@ def clean_multiple_rows(row):
     )
     part_name = []
     initial_time = []
+    order_num = []
     creation_time = []
     approved_time = []
     bill_time = []
@@ -40,6 +42,7 @@ def clean_multiple_rows(row):
     manager_name = []
 
     for i in range(min_div_number):
+        order_num.append(_order)
         part_name.append(_part.split()[0])
         initial_time.append(dt_initial_time)
         creation_time.append(get_dt_from_str_list_by_index(creation_list, i))
@@ -49,6 +52,7 @@ def clean_multiple_rows(row):
         manager_name.append(manager_name_list[i])
 
     d = pd.DataFrame(data={
+        'order_num': order_num,
         'part_name': part_name,
         'initial_time': initial_time,
         'creation_time': creation_time,
